@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+    <meta content="text/html; charset=UTF-8; X-Content-Type-Options=nosniff" http-equiv="Content-Type" />
+    <head>
+        <title>Hello world</title>
+        <!--link rel="stylesheet" type="text/css" href="css/styles.css"/-->
+    </head>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="application/javascript">
+        var socket = io();
+        function setCookie() {
+            var d = new Date();
+            var cvalue = document.getElementById('name').value;
+            d.setTime(d.getTime() + (7 * 24 * 60 * 60 * 1000));
+            var expires = "expires="+d.toUTCString();
+            document.cookie = "username=" + cvalue + ";" + expires + ";path=/";
+        }
+
+        function getCookie() {
+            var name = "username=";
+            var ca = document.cookie.split(';');
+            for(var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        function checkCookie() {
+            var ckuser = getCookie();
+            if (ckuser != "") {
+                document.getElementById("name").value = ckuser;
+            }
+        }
+        window.onload = checkCookie;
+
+        function sendMessage(){
+            var msg_ = document.getElementById('message').value;
+            var user = document.getElementById('name').value;
+            var user_ = getCookie();
+            if (user!=user_)
+                setCookie();
+            if(msg_){
+                socket.emit('msg', {msg: msg_, user: user});
+            }
+        }
+
+        function outMsg(data){
+            if (data.user == getCookie()){
+                return '<div class="msgme"><b>' + data.user + '</b><br>' + data.msg + '</div>';
+            }
+            return '<div class="msgdef"><b>' + data.user + '</b><br>' + data.msg + '</div>';
+        }
+
+        socket.on('newmsg', function(data){
+            document.getElementById('message-container').innerHTML += outMsg(data);
+        })
+
+        socket.on('loading', function(data){
+            console.log(data);
+            document.getElementById('message-container').innerHTML="";
+            for(i=0; i<data.length; i++){
+                document.getElementById('message-container').innerHTML += outMsg(data[i]);
+            }
+        })
+    </script>
+    
+    <style>
+        .main{
+            width: 300px;
+            height: auto;
+            padding: 10px;
+            border: 5px solid greenyellow;
+            margin: 0; 
+        }
+
+        .msgbox{
+            width: 260px;
+            height: auto;
+            padding: 10px;
+            border: 3px solid green;
+            margin: 10px 5px;
+            position: relative;
+            top: 15px;
+            background: lightgreen;
+        }
+
+        #name, #message{
+            font-size: 16px;
+            background: white;
+            color: black;
+            border: 0px;
+            padding: 5px;
+        }
+        
+        #name{
+            width: 200px;
+        }
+        
+        .thebutton{
+            position: relative;
+            left: 15px;
+            width: 60px;
+            height: 30px;
+        }
+
+        #message{
+            position: relative;
+            top: 15px;
+            width: 280px;
+        }
+
+        .msgme, .msgdef{
+            
+            text-align: left;
+            padding: 4px;
+            margin-right: 25px;
+            margin-top: 5px;
+            margin-bottom: 2px;
+            border: 1px solid black;
+            background-color: lightseagreen;
+        }
+        
+        .msgme{
+            text-align: right;
+            margin-left: 25px;
+            margin-right: 0;
+            background-color: lightcoral;
+        }
+    </style>
+
+    <body>
+        <div class="main">
+            <input id="name" type="text" name="name" placeholder="Enter your name!" maxlength="32" required>
+            <button class="thebutton" type="button" name="button" onclick="sendMessage()">Send</button>
+            <br>
+            <input id="message" type="text" name="message" placeholder="Chat here" required>
+            <div class="msgbox" id="message-container"></div>
+        </div>
+    </body>
+</html>

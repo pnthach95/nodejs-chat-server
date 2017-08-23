@@ -1,0 +1,10 @@
+.main{
+    width: 320px;
+    padding: 10px;
+    border: 5px solid greenyellow;
+    margin: 0; 
+}
+
+#name, #message{
+    font-size: 14px
+}
