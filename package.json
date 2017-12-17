@@ -4,6 +4,7 @@
     "description": "Real time web chat",
     "dependencies": {
         "socket.io": "latest",
+        "mysql": "^2.15.0",
         "express": "latest"
     },
     "author": "developer"
